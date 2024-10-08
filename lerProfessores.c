@@ -36,3 +36,26 @@ void lerProfessores(const char* filename) {
     
     fclose(file);
 }
+
+void verificarAlunos() {
+    for (int i = 0; i < contadorAlunos; i++) {
+        int departamentoValido = 0;
+        for (int j = 0; j < contadorProfessores; j++) {
+            if (strcmp(alunos[i].departamento, professores[j].departamento) == 0) {
+                departamentoValido = 1;
+                break;
+            }
+        }
+        if (!departamentoValido) {
+            printf("Aluno %s está em um departamento inválido: %s\n", alunos[i].nome, alunos[i].departamento);
+        }
+    }
+}
+
+int main() {
+    lerProfessores("professor.txt");
+    lerAlunos("aluno.txt");
+    verificarAlunos();
+    
+    return 0;
+}
