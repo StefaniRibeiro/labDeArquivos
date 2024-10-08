@@ -22,3 +22,17 @@ typedef struct {
 
 Aluno alunos[MAX_ALUNOS];
 int contadorAlunos = 0;
+
+void lerProfessores(const char* filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo de professores.\n");
+        return;
+    }
+
+    while (fscanf(file, "%s %s", professores[contadorProfessores].nome, professores[contadorProfessores].departamento) != EOF) {
+        contadorProfessores++;
+    }
+    
+    fclose(file);
+}
