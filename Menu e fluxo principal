@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CANDIDATOS 100
+#define NOME_MAX 50
+
+typedef struct {
+    char nome[NOME_MAX];
+    int votos;
+} Candidato;
+
+void contabilizarVotos(Candidato *candidatos, int *num_candidatos, const char *voto) {
+    for (int i = 0; i < *num_candidatos; i++) {
+        if (strcmp(candidatos[i].nome, voto) == 0) {
+            candidatos[i].votos++;
+            return;
+        }
+    }
+
+    // Se o candidato não existe, adiciona um novo
+    strcpy(candidatos[*num_candidatos].nome, voto);
+    candidatos[*num_candidatos].votos = 1;
+    (*num_candidatos)++;
+}
+
+void gerarResultado(Candidato *candidatos, int num_candidatos) {
+    FILE *file = fopen("resultado_votacao.txt", "w");
+    if (!file) {
+        perror("Erro ao abrir o arquivo");
+        return;
+    }
+
+    int max_votos = 0;
+
+    // Encontrar o máximo de votos
+    for (int i = 0; i < num_candidatos; i++) {
+        if (candidatos[i].votos > max_votos) {
+            max_votos = candidatos[i].votos;
+        }
+    }
+
+    fprintf(file, "Resultados da Votação:\n");
+    for (int i = 0; i < num_candidatos; i++) {
+        fprintf(file, "%s: %d votos\n", candidatos[i].nome, candidatos[i].votos);
+    }
+
+    fprintf(file, "\nVencedores:\n");
+    for (int i = 0; i < num_candidatos; i++) {
+        if (candidatos[i].votos == max_votos) {
+            fprintf(file, "%s\n", candidatos[i].nome);
+        }
+    }
+
+    fclose(file);
+}
+
+void mostrarMenu1() {
+    printf("\n=== Menu Principal ===\n");
+    printf("1. Iniciar nova votação\n");
+    printf("2. Suspender votação\n");
+    printf("3. Sair\n");
+    printf("======================\n");
+}
+
+void mostrarMenu2() {
+    printf("\n=== Menu de Votação ===\n");
+    printf("Digite o nome do candidato para votar ou 'fim' para encerrar:\n");
+}
+
+void fluxoPrincipal() {
+    Candidato candidatos[MAX_CANDIDATOS];
+    int num_candidatos = 0;
+    int continuar = 1;
+
+    while (continuar) {
+        mostrarMenu1();
+        int opcao;
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: {
+                // Iniciar nova votação
+                num_candidatos = 0;  // Resetando candidatos
+                printf("Nova votação iniciada.\n");
+                while (1) {
+                    mostrarMenu2();
+                    char voto[NOME_MAX];
+                    scanf("%s", voto);
+                    if (strcmp(voto, "fim") == 0) {
+                        break;  // Encerra a votação
+                    }
+                    contabilizarVotos(candidatos, &num_candidatos, voto);
+                }
+                gerarResultado(candidatos, num_candidatos);
+                printf("Resultados gerados em 'resultado_votacao.txt'\n");
+                break;
+            }
+            case 2: {
+                // Suspender votação
+                printf("Votação suspensa. Você pode continuar mais tarde.\n");
+                // Aqui você pode implementar lógica para salvar estado, se necessário
+                break;
+            }
+            case 3: {
+                // Sair
+                printf("Saindo do programa.\n");
+                continuar = 0;
+                break;
+            }
+            default: {
+                printf("Opção inválida! Tente novamente.\n");
+                break;
+            }
+        }
+    }
+}
+
+int main() {
+    fluxoPrincipal();
+    return 0;
+}
